@@ -14,7 +14,8 @@ jQuery(document).ready(function($) {
       queryRecordCount: 'queryRecordCount',
       totalRecordCount: 'totalRecordCount',
       perPageDefault: 10,
-      perPageOptions: [10, 20, 50, 100]
+      perPageOptions: [10, 20, 50, 100],
+      idAttr: 'id'
     };
     _.defaults(opts, defaults);
     return element.find('.dynaTable').bind('dynatable:init', function(e, dynatable) {
@@ -50,6 +51,17 @@ jQuery(document).ready(function($) {
       },
       params: {
         queries: 'queries'
+      },
+      writers: {
+        _rowWriter: function(rowIndex, record, columns, cellWriter) {
+          var col, tr, _i, _len;
+          tr = '';
+          for (_i = 0, _len = columns.length; _i < _len; _i++) {
+            col = columns[_i];
+            tr += cellWriter(col, record);
+          }
+          return '<tr data-id=' + record[opts.idAttr] + '>' + tr + '</tr>';
+        }
       },
       customFilters: opts.customFilters,
       wrapper: opts.element

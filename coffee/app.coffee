@@ -115,6 +115,7 @@ jQuery(document).ready ($)->
 				records 		: @collection.toJSON()
 				totalRecordCount: @collection.length
 				customFilters	: customFilters
+				idAttr 			: '_id'
 				
 
 	################## End of Client Side Pagination & Sorting ##################

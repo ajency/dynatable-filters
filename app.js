@@ -111,7 +111,8 @@ jQuery(document).ready(function($) {
         perPage: 5,
         records: this.collection.toJSON(),
         totalRecordCount: this.collection.length,
-        customFilters: customFilters
+        customFilters: customFilters,
+        idAttr: '_id'
       });
     };
 

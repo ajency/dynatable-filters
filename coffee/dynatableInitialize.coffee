@@ -16,6 +16,7 @@ jQuery(document).ready ($)->
 			totalRecordCount 	: 'totalRecordCount'
 			perPageDefault 		: 10
 			perPageOptions 		: [10,20,50,100]
+			idAttr 				: 'id'
 
 		_.defaults opts, defaults
 
@@ -53,6 +54,12 @@ jQuery(document).ready ($)->
 
 				params:
 					queries: 'queries'
+
+				writers:
+					_rowWriter: (rowIndex, record, columns, cellWriter)->						
+									tr = '';
+									tr += cellWriter(col, record) for col in columns
+									'<tr data-id='+record[opts.idAttr]+'>' + tr + '</tr>';
 
 				customFilters 		: opts.customFilters
 
