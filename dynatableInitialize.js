@@ -111,9 +111,12 @@ jQuery(document).ready(function($) {
     }
     return dynatable.process();
   };
-  return $(document).on("dynatable:init", function(e, dynatable) {
+  $(document).on("dynatable:init", function(e, dynatable) {
     var customFilters, records;
     records = dynatable.settings.dataset.records;
+    if (_.isEmpty(records)) {
+      return false;
+    }
     customFilters = dynatable.settings.customFilters;
     if (!_.isEmpty(customFilters) && !_.isEmpty(customFilters.filters)) {
       return _.each(customFilters.filters, function(filter) {
@@ -171,6 +174,13 @@ jQuery(document).ready(function($) {
         }
         return $(dynatable.settings.wrapper).find('.' + filter.attribute + 'Filter').append(html);
       });
+    }
+  });
+  return $(document).on("dynatable:afterUpdate", function(e, rows) {
+    var colspan;
+    colspan = $(e.target).find('thead tr:first-child th').length;
+    if (!rows) {
+      return $(e.target).find('tbody').append("<tr><td colspan=" + colspan + ">No Records Found</td></tr>");
     }
   });
 });

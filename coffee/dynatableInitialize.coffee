@@ -107,6 +107,9 @@ jQuery(document).ready ($)->
 	$(document).on "dynatable:init", (e, dynatable)->
 
 		records= dynatable.settings.dataset.records
+
+		return false if _.isEmpty records
+
 		customFilters = dynatable.settings.customFilters
 
 		if not _.isEmpty(customFilters) and not _.isEmpty customFilters.filters
@@ -148,3 +151,8 @@ jQuery(document).ready ($)->
 
 				$(dynatable.settings.wrapper).find '.'+filter.attribute+'Filter'
 				.append html
+
+	$(document).on "dynatable:afterUpdate", (e, rows)->
+		colspan = $(e.target).find('thead tr:first-child th').length
+		if not rows
+			$(e.target).find('tbody').append "<tr><td colspan=#{colspan}>No Records Found</td></tr>"
