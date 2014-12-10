@@ -17,9 +17,15 @@ jQuery(document).ready ($)->
 			perPageDefault 		: 10
 			perPageOptions 		: [10,20,50,100]
 			idAttr 				: 'id'
+			paginate 			: true
+			recordCount 		: true
+			sorting				: true
+			pushState			: false
+			search 				: true
+			perPageSelect 		: true
 
 		_.defaults opts, defaults
-
+		
 		element.find '.dynaTable'
 			.bind 'dynatable:init', (e, dynatable)->
 				_.each opts.customQueries, (queryFn,index)->
@@ -27,12 +33,12 @@ jQuery(document).ready ($)->
 
 			.dynatable
 				features: 
-					paginate 			: true,
-					recordCount 		: true,
-					sorting				: true
-					pushState			: false
-					search 				: true
-					perPageSelect 		: true
+					paginate 			: opts.paginate
+					recordCount 		: opts.recordCount
+					sorting				: opts.sorting
+					pushState			: opts.pushState
+					search 				: opts.search
+					perPageSelect 		: opts.perPageSelect
 
 				table:
 					headRowSelector 	: 'thead tr:first-child'

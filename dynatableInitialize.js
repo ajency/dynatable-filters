@@ -15,7 +15,13 @@ jQuery(document).ready(function($) {
       totalRecordCount: 'totalRecordCount',
       perPageDefault: 10,
       perPageOptions: [10, 20, 50, 100],
-      idAttr: 'id'
+      idAttr: 'id',
+      paginate: true,
+      recordCount: true,
+      sorting: true,
+      pushState: false,
+      search: true,
+      perPageSelect: true
     };
     _.defaults(opts, defaults);
     return element.find('.dynaTable').bind('dynatable:init', function(e, dynatable) {
@@ -24,12 +30,12 @@ jQuery(document).ready(function($) {
       });
     }).dynatable({
       features: {
-        paginate: true,
-        recordCount: true,
-        sorting: true,
-        pushState: false,
-        search: true,
-        perPageSelect: true
+        paginate: opts.paginate,
+        recordCount: opts.recordCount,
+        sorting: opts.sorting,
+        pushState: opts.pushState,
+        search: opts.search,
+        perPageSelect: opts.perPageSelect
       },
       table: {
         headRowSelector: 'thead tr:first-child'
