@@ -25,9 +25,20 @@ jQuery(document).ready(function($) {
     };
     _.defaults(opts, defaults);
     return element.find('.dynaTable').bind('dynatable:init', function(e, dynatable) {
-      return _.each(opts.customQueries, function(queryFn, index) {
+      _.each(opts.customQueries, function(queryFn, index) {
         return dynatable.queries.functions[index] = queryFn;
       });
+      return dynatable.sorts.functions['date'] = function(a, b, attr, direction) {
+        var comparison, date1, date2;
+        date1 = moment(new Date(a[attr]));
+        date2 = moment(new Date(b[attr]));
+        comparison = date1.diff(date2);
+        if (direction > 0) {
+          return comparison;
+        } else {
+          return -comparison;
+        }
+      };
     }).dynatable({
       features: {
         paginate: opts.paginate,
@@ -49,7 +60,21 @@ jQuery(document).ready(function($) {
         queries: 'queries',
         queryRecordCount: opts.queryRecordCount,
         totalRecordCount: opts.totalRecordCount,
-        perPageOptions: opts.perPageOptions
+        perPageOptions: opts.perPageOptions,
+        sortTypes: function() {
+          var col_type, column, header, headers, sorts, _i, _len;
+          sorts = [];
+          headers = $(opts.element).find('table thead tr:first-child th');
+          for (_i = 0, _len = headers.length; _i < _len; _i++) {
+            header = headers[_i];
+            col_type = $(header).attr('data-dynatable-type');
+            column = $(header).attr('data-dynatable-column');
+            if (col_type === 'date') {
+              sorts[column] = 'date';
+            }
+          }
+          return sorts;
+        }
       },
       inputs: {
         queries: opts.element.find('.filters'),
@@ -60,13 +85,36 @@ jQuery(document).ready(function($) {
       },
       writers: {
         _rowWriter: function(rowIndex, record, columns, cellWriter) {
-          var col, tr, _i, _len;
+          var headers, tr;
+          headers = $(opts.element).find('table thead tr:first-child th');
           tr = '';
-          for (_i = 0, _len = columns.length; _i < _len; _i++) {
-            col = columns[_i];
-            tr += cellWriter(col, record);
-          }
+          _.each(columns, (function(_this) {
+            return function(col, index) {
+              var col_type;
+              col_type = $(headers[index]).attr('data-dynatable-type');
+              return tr += cellWriter(col, record, col_type);
+            };
+          })(this));
           return '<tr data-id=' + record[opts.idAttr] + '>' + tr + '</tr>';
+        },
+        _cellWriter: function(column, record, col_type) {
+          var html, td;
+          html = column.attributeWriter(record);
+          td = '<td';
+          if (column.hidden || column.textAlign) {
+            td += ' style="';
+          }
+          if (column.hidden) {
+            td += 'display: none;';
+          }
+          if (column.textAlign) {
+            td += 'text-align: ' + column.textAlign + ';';
+            td += '"';
+          }
+          if (col_type === 'date' && !_.isUndefined(moment)) {
+            html = moment(new Date(html)).format('Do MMM YYYY');
+          }
+          return td + '>' + html + '</td>';
         }
       },
       customFilters: opts.customFilters,
@@ -75,33 +123,43 @@ jQuery(document).ready(function($) {
   };
   createFilterElements = function(customfilters) {
     return _.each(customfilters.filters, function(filter) {
-      var html;
+      var html, wrapperElement;
       html = '';
+      wrapperElement = filter.wrapper ? filter.wrapper : customfilters.wrapper;
       switch (filter.elementType) {
         case 'select':
           if (filter.label) {
             html += "<div><label>" + filter.label + ": </label>";
           }
-          html += "<select class='" + filter.attribute + "Filter filters' data-dynatable-query='" + filter.attribute + "'> <option value='' selected>--</option> </select> </div><br>";
+          html += "<select class='" + filter.attribute + "Filter filters " + filter.className + "' data-dynatable-query='" + filter.attribute + "'> <option value='' selected>--</option> </select> </div><br>";
           break;
         case 'checkbox':
         case 'radio':
           html += "<div class='" + filter.attribute + "Filter'> <label>" + filter.label + ": </label> </div><br>";
+          break;
+        case 'date':
+          html += "<input class='srch-filters dyna-date-picker " + filter.className + "' size=5 data-dynatable-type='date' data-search-query='" + filter.attribute + "' data-dynatable-query='" + filter.attribute + "' type = 'text' style='color:#000'>";
       }
-      if (filter.wrapper) {
-        return filter.wrapper.append(html);
-      } else {
-        return customfilters.wrapper.append(html);
-      }
+      return wrapperElement.append(html);
     });
   };
   $.processSearchFilters = function(e, element) {
-    var attrName, dynatable, functions, value;
+    var attrName, dynatable, functions, searchType, value;
     dynatable = element.data('dynatable');
     functions = dynatable.queries.functions;
     attrName = $(e.target).attr('data-search-query');
+    searchType = $(e.target).attr('data-dynatable-type');
     value = $(e.target).val();
-    if (!_.has(functions, attrName)) {
+    if (searchType === 'date') {
+      functions[attrName] = function(record, queryValue) {
+        var attrValue, contains;
+        attrValue = moment(new Date(record[attrName])).format('YYYY-MM-DD');
+        queryValue = moment(new Date(queryValue)).format('YYYY-MM-DD');
+        if (attrValue === queryValue) {
+          return contains = true;
+        }
+      };
+    } else if (!_.has(functions, attrName)) {
       functions[attrName] = function(record, queryValue) {
         var attrValue, contains;
         attrValue = record[attrName];
@@ -144,7 +202,7 @@ jQuery(document).ready(function($) {
               range = _.range(minimum, maxRec, filter.range);
               for (_j = 0, _len1 = range.length; _j < _len1; _j++) {
                 num = range[_j];
-                html += "<option value=" + num + "-" + (num + filter.range) + ">" + (num + 1) + " to " + (num + filter.range) + "</option>";
+                html += "<option value=" + num + "-" + (num + filter.range) + ">" + num + " to " + (num + filter.range) + "</option>";
               }
               dynatable.queries.functions[filter.attribute] = function(record, queryValue) {
                 var values;
@@ -164,12 +222,12 @@ jQuery(document).ready(function($) {
               _ref1 = filter.values;
               for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
                 item = _ref1[_l];
-                html += " <input type='" + filter.elementType + "' value=" + item + " name=" + filter.attribute + "> <span class='capital'>" + item + "</span>";
+                html += " <input class='" + filter.className + "' type='" + filter.elementType + "' value=" + item + " name=" + filter.attribute + "> <span class='capital'>" + item + "</span>";
               }
             } else {
               for (_m = 0, _len4 = uniqRecs.length; _m < _len4; _m++) {
                 item = uniqRecs[_m];
-                html += " <input type='" + filter.elementType + "' value=" + item + " name=" + filter.attribute + "> <span class='capital'>" + item + "</span>";
+                html += " <input class='" + filter.className + "' type='" + filter.elementType + "' value=" + item + " name=" + filter.attribute + "> <span class='capital'>" + item + "</span>";
               }
             }
             if (filter.elementType === 'checkbox') {
@@ -186,7 +244,12 @@ jQuery(document).ready(function($) {
     var colspan;
     colspan = $(e.target).find('thead tr:first-child th').length;
     if (!rows) {
-      return $(e.target).find('tbody').append("<tr><td colspan=" + colspan + ">No Records Found</td></tr>");
+      $(e.target).find('tbody').append("<tr><td colspan=" + colspan + ">No Records Found</td></tr>");
     }
+    return $(e.target).closest('.dynaWrapper').find('.dyna-date-picker').pickadate({
+      'container': $(e.target).closest('.dynaWrapper'),
+      'selectYears': true,
+      'selectMonths': true
+    });
   });
 });

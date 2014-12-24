@@ -20,7 +20,6 @@ jQuery(document).ready ($)->
 
 				@userCollection.each (model)-> 
 					model.set 'action': '<a href="#view/'+model.get('_id')+'">view</a> | <a href="#edit/'+model.get('_id')+'">edit</a>'
-					model.set 'reg_date': moment(model.get('registered')).format("Do MMM YYYY")
 
 				@view = view = @_getView @userCollection 
 				@show @view 
@@ -37,7 +36,7 @@ jQuery(document).ready ($)->
 						<tr>
 							<th>Name</th>
 							<th>Age</th>
-							<th data-dynatable-column="reg_date" data-dynatable-sorts="registered">Sign Up Date</th>
+							<th data-dynatable-column="registered" data-dynatable-type="date" data-dynatable-sorts="registered">Sign Up Date</th>
 							<th>Gender</th>
 							<th>Society</th>
 							<th>Action</th>
@@ -47,7 +46,7 @@ jQuery(document).ready ($)->
 								<input class="srch-filters" size=5 data-search-query="name" type = "text" style="color:#000">
 							</th>
 							<th id="ageHeader"></th>
-							<th></th>
+							<th id="registered"></th>
 							<th></th>
 							<th>
 								<input class="srch-filters" size=5 data-search-query="society" type = "text" style="color:#000">
@@ -59,7 +58,7 @@ jQuery(document).ready ($)->
 					</tbody>
 					</table>'
 
-		className: 'dynaExample'
+		className: 'dynaWrapper'
 
 		events:
 			'change .customFilters input[type="radio"]' :(e)->
@@ -82,8 +81,11 @@ jQuery(document).ready ($)->
 
 				dynatable.process()
 
-			'keyup .srch-filters, change .srch-filters, blur .srch-filters' :(e)->
-				$.processSearchFilters e, @$el.find 'table'
+			'keyup .srch-filters' 	:(e)->$.processSearchFilters e, @$el.find 'table'
+
+			'change .srch-filters' 	:(e)->$.processSearchFilters e, @$el.find 'table'
+
+			'blur .srch-filters' 	:(e)->$.processSearchFilters e, @$el.find 'table'
 
 		onShow:->
 
@@ -97,6 +99,7 @@ jQuery(document).ready ($)->
 						range 		: 10
 						minimum 	: 10
 						wrapper 	: @$el.find 'th#ageHeader'
+						className 	: 'form-control'
 
 					genderFilter :
 						label 		: 'Select Gender'
@@ -107,6 +110,11 @@ jQuery(document).ready ($)->
 						label 		: 'Select Society'
 						attribute 	: 'society'
 						elementType	: 'checkbox'
+
+					societyFilter : 
+						attribute 	: 'registered'
+						elementType	: 'date'
+						wrapper 	: @$el.find 'th#registered'
 
 			$.initializeDynatable
 				element			: @$el
@@ -148,7 +156,7 @@ jQuery(document).ready ($)->
 					</tbody>
 					</table>'
 
-		className: 'dynaExample'
+		className: 'dynaWrapper'
 
 		events:
 			'change input[name="gender"]' :(e)->

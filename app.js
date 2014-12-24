@@ -20,11 +20,8 @@ jQuery(document).ready(function($) {
           var view;
           _this.userCollection.reset(data.records);
           _this.userCollection.each(function(model) {
-            model.set({
-              'action': '<a href="#view/' + model.get('_id') + '">view</a> | <a href="#edit/' + model.get('_id') + '">edit</a>'
-            });
             return model.set({
-              'reg_date': moment(model.get('registered')).format("Do MMM YYYY")
+              'action': '<a href="#view/' + model.get('_id') + '">view</a> | <a href="#edit/' + model.get('_id') + '">edit</a>'
             });
           });
           _this.view = view = _this._getView(_this.userCollection);
@@ -49,9 +46,9 @@ jQuery(document).ready(function($) {
       return ShowUserTable.__super__.constructor.apply(this, arguments);
     }
 
-    ShowUserTable.prototype.template = '<div class="customFilters"></div> <!--<select class="filters" id="age"><option>20</option><option>40</option></select>--> <table class="dynaTable" id="testt1"> <thead> <tr> <th>Name</th> <th>Age</th> <th data-dynatable-column="reg_date" data-dynatable-sorts="registered">Sign Up Date</th> <th>Gender</th> <th>Society</th> <th>Action</th> </tr> <tr> <th> <input class="srch-filters" size=5 data-search-query="name" type = "text" style="color:#000"> </th> <th id="ageHeader"></th> <th></th> <th></th> <th> <input class="srch-filters" size=5 data-search-query="society" type = "text" style="color:#000"> </th> <th></th> </tr> </thead> <tbody> </tbody> </table>';
+    ShowUserTable.prototype.template = '<div class="customFilters"></div> <!--<select class="filters" id="age"><option>20</option><option>40</option></select>--> <table class="dynaTable" id="testt1"> <thead> <tr> <th>Name</th> <th>Age</th> <th data-dynatable-column="registered" data-dynatable-type="date" data-dynatable-sorts="registered">Sign Up Date</th> <th>Gender</th> <th>Society</th> <th>Action</th> </tr> <tr> <th> <input class="srch-filters" size=5 data-search-query="name" type = "text" style="color:#000"> </th> <th id="ageHeader"></th> <th id="registered"></th> <th></th> <th> <input class="srch-filters" size=5 data-search-query="society" type = "text" style="color:#000"> </th> <th></th> </tr> </thead> <tbody> </tbody> </table>';
 
-    ShowUserTable.prototype.className = 'dynaExample';
+    ShowUserTable.prototype.className = 'dynaWrapper';
 
     ShowUserTable.prototype.events = {
       'change .customFilters input[type="radio"]': function(e) {
@@ -76,7 +73,13 @@ jQuery(document).ready(function($) {
         }
         return dynatable.process();
       },
-      'keyup .srch-filters, change .srch-filters, blur .srch-filters': function(e) {
+      'keyup .srch-filters': function(e) {
+        return $.processSearchFilters(e, this.$el.find('table'));
+      },
+      'change .srch-filters': function(e) {
+        return $.processSearchFilters(e, this.$el.find('table'));
+      },
+      'blur .srch-filters': function(e) {
         return $.processSearchFilters(e, this.$el.find('table'));
       }
     };
@@ -91,7 +94,8 @@ jQuery(document).ready(function($) {
             elementType: 'select',
             range: 10,
             minimum: 10,
-            wrapper: this.$el.find('th#ageHeader')
+            wrapper: this.$el.find('th#ageHeader'),
+            className: 'form-control'
           },
           genderFilter: {
             label: 'Select Gender',
@@ -102,6 +106,11 @@ jQuery(document).ready(function($) {
             label: 'Select Society',
             attribute: 'society',
             elementType: 'checkbox'
+          },
+          societyFilter: {
+            attribute: 'registered',
+            elementType: 'date',
+            wrapper: this.$el.find('th#registered')
           }
         }
       };
@@ -148,7 +157,7 @@ jQuery(document).ready(function($) {
 
     ShowAjaxUserTable.prototype.template = '<div class="customFilters"></div> <table id="testt2" class="dynaTable"> <thead> <th data-dynatable-column="display_name">Name</th> <th>Age</th> <th data-dynatable-column="registered">Sign Up Date</th> <th>Sex</th> <th>Society</th> </thead> <tbody> </tbody> </table>';
 
-    ShowAjaxUserTable.prototype.className = 'dynaExample';
+    ShowAjaxUserTable.prototype.className = 'dynaWrapper';
 
     ShowAjaxUserTable.prototype.events = {
       'change input[name="gender"]': function(e) {
