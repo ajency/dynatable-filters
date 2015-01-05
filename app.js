@@ -121,7 +121,10 @@ jQuery(document).ready(function($) {
         records: this.collection.toJSON(),
         totalRecordCount: this.collection.length,
         customFilters: customFilters,
-        idAttr: '_id'
+        idAttr: '_id',
+        defaultSort: {
+          'name': -1
+        }
       });
     };
 

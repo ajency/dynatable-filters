@@ -23,6 +23,7 @@ jQuery(document).ready ($)->
 			pushState			: false
 			search 				: true
 			perPageSelect 		: true
+			defaultSort 		: []
 
 		_.defaults opts, defaults
 		
@@ -59,6 +60,7 @@ jQuery(document).ready ($)->
 					queryRecordCount 	: opts.queryRecordCount
 					totalRecordCount 	: opts.totalRecordCount	
 					perPageOptions 		: opts.perPageOptions
+					sorts 				: opts.defaultSort
 					sortTypes 			:-> 
 						sorts = []
 						headers= $(opts.element).find 'table thead tr:first-child th'

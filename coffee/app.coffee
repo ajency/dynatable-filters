@@ -124,6 +124,7 @@ jQuery(document).ready ($)->
 				totalRecordCount: @collection.length
 				customFilters	: customFilters
 				idAttr 			: '_id'
+				defaultSort 	: 'name' : -1
 				
 
 	################## End of Client Side Pagination & Sorting ##################

@@ -21,7 +21,8 @@ jQuery(document).ready(function($) {
       sorting: true,
       pushState: false,
       search: true,
-      perPageSelect: true
+      perPageSelect: true,
+      defaultSort: []
     };
     _.defaults(opts, defaults);
     return element.find('.dynaTable').bind('dynatable:init', function(e, dynatable) {
@@ -61,6 +62,7 @@ jQuery(document).ready(function($) {
         queryRecordCount: opts.queryRecordCount,
         totalRecordCount: opts.totalRecordCount,
         perPageOptions: opts.perPageOptions,
+        sorts: opts.defaultSort,
         sortTypes: function() {
           var col_type, column, header, headers, sorts, _i, _len;
           sorts = [];
