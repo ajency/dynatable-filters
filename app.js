@@ -125,7 +125,8 @@ jQuery(document).ready(function($) {
         defaultSort: {
           'name': -1
         },
-        dateFormat: 'dddd, dd mmm, yyyy'
+        dateFormat: 'Do MMM YYYY',
+        dateFilterFormat: 'dd-mm-yyyy'
       });
     };
 

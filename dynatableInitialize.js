@@ -23,7 +23,8 @@ jQuery(document).ready(function($) {
       search: true,
       perPageSelect: true,
       defaultSort: [],
-      dateFormat: "dd/mm/yy"
+      dateFilterFormat: "dd/mm/yy",
+      dateFormat: "Do MMM YYYY"
     };
     _.defaults(opts, defaults);
     return element.find('.dynaTable').bind('dynatable:init', function(e, dynatable) {
@@ -64,7 +65,7 @@ jQuery(document).ready(function($) {
         totalRecordCount: opts.totalRecordCount,
         perPageOptions: opts.perPageOptions,
         sorts: opts.defaultSort,
-        dateFormat: opts.dateFormat,
+        dateFilterFormat: opts.dateFilterFormat,
         sortTypes: function() {
           var col_type, column, header, headers, sorts, _i, _len;
           sorts = [];
@@ -116,7 +117,7 @@ jQuery(document).ready(function($) {
             td += '"';
           }
           if (col_type === 'date' && !_.isUndefined(moment)) {
-            html = moment(new Date(html)).format('Do MMM YYYY');
+            html = moment(new Date(html)).format(opts.dateFormat);
           }
           return td + '>' + html + '</td>';
         }
@@ -180,7 +181,7 @@ jQuery(document).ready(function($) {
     return dynatable.process();
   };
   $(document).on("dynatable:init", function(e, dynatable) {
-    var customFilters, dateFormat, records;
+    var customFilters, dateFilterFormat, records;
     records = dynatable.settings.dataset.records;
     if (_.isEmpty(records)) {
       return false;
@@ -244,13 +245,13 @@ jQuery(document).ready(function($) {
       });
     }
     if (dynatable) {
-      dateFormat = dynatable.settings.dataset.dateFormat;
+      dateFilterFormat = dynatable.settings.dataset.dateFilterFormat;
     }
     return $(e.target).closest('.dynaWrapper').find('.dyna-date-picker').pickadate({
       'container': $(e.target).closest('.dynaWrapper'),
       'selectYears': true,
       'selectMonths': true,
-      'format': dateFormat
+      'format': dateFilterFormat
     });
   });
   return $(document).on("dynatable:afterUpdate", function(e, rows) {

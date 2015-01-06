@@ -24,7 +24,8 @@ jQuery(document).ready ($)->
 			search 				: true
 			perPageSelect 		: true
 			defaultSort 		: []
-			dateFormat 			: "dd/mm/yy"
+			dateFilterFormat	: "dd/mm/yy"
+			dateFormat			: "Do MMM YYYY"
 
 		_.defaults opts, defaults
 		
@@ -62,7 +63,7 @@ jQuery(document).ready ($)->
 					totalRecordCount 	: opts.totalRecordCount	
 					perPageOptions 		: opts.perPageOptions
 					sorts 				: opts.defaultSort
-					dateFormat 			: opts.dateFormat
+					dateFilterFormat 	: opts.dateFilterFormat
 
 					sortTypes 			:-> 
 						sorts = []
@@ -108,7 +109,7 @@ jQuery(document).ready ($)->
 										td += '"';
 
 									if col_type is 'date' and not _.isUndefined moment
-										html = moment(new Date(html)).format 'Do MMM YYYY'
+										html = moment(new Date(html)).format opts.dateFormat
 
 									td + '>' + html + '</td>'
 
@@ -213,7 +214,7 @@ jQuery(document).ready ($)->
 				$(dynatable.settings.wrapper).find '.'+filter.attribute+'Filter'
 				.append html
 
-		dateFormat= dynatable.settings.dataset.dateFormat if dynatable
+		dateFilterFormat= dynatable.settings.dataset.dateFilterFormat if dynatable
 
 		$(e.target).closest '.dynaWrapper'
 		.find '.dyna-date-picker'
@@ -221,7 +222,7 @@ jQuery(document).ready ($)->
 			'container'		: $(e.target).closest '.dynaWrapper'
 			'selectYears'	: true
 			'selectMonths'	: true
-			'format' 		: dateFormat
+			'format' 		: dateFilterFormat
 
 	$(document).on "dynatable:afterUpdate", (e, rows)->
 
