@@ -22,7 +22,8 @@ jQuery(document).ready(function($) {
       pushState: false,
       search: true,
       perPageSelect: true,
-      defaultSort: []
+      defaultSort: [],
+      dateFormat: "dd/mm/yy"
     };
     _.defaults(opts, defaults);
     return element.find('.dynaTable').bind('dynatable:init', function(e, dynatable) {
@@ -63,6 +64,7 @@ jQuery(document).ready(function($) {
         totalRecordCount: opts.totalRecordCount,
         perPageOptions: opts.perPageOptions,
         sorts: opts.defaultSort,
+        dateFormat: opts.dateFormat,
         sortTypes: function() {
           var col_type, column, header, headers, sorts, _i, _len;
           sorts = [];
@@ -133,7 +135,7 @@ jQuery(document).ready(function($) {
           if (filter.label) {
             html += "<div><label>" + filter.label + ": </label>";
           }
-          html += "<select class='" + filter.attribute + "Filter filters " + filter.className + "' data-dynatable-query='" + filter.attribute + "'> <option value='' selected>--</option> </select> </div><br>";
+          html += "<select class='" + filter.attribute + "Filter filters " + filter.className + "' data-dynatable-query='" + filter.attribute + "'> <option value='' selected>--Select--</option> </select> </div><br>";
           break;
         case 'checkbox':
         case 'radio':
@@ -178,14 +180,14 @@ jQuery(document).ready(function($) {
     return dynatable.process();
   };
   $(document).on("dynatable:init", function(e, dynatable) {
-    var customFilters, records;
+    var customFilters, dateFormat, records;
     records = dynatable.settings.dataset.records;
     if (_.isEmpty(records)) {
       return false;
     }
     customFilters = dynatable.settings.customFilters;
     if (!_.isEmpty(customFilters) && !_.isEmpty(customFilters.filters)) {
-      return _.each(customFilters.filters, function(filter) {
+      _.each(customFilters.filters, function(filter) {
         var html, item, maxRec, minimum, num, range, uniqRecs, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1;
         uniqRecs = _.uniq(_.pluck(records, filter.attribute));
         uniqRecs = _.sortBy(uniqRecs);
@@ -241,17 +243,21 @@ jQuery(document).ready(function($) {
         return $(dynatable.settings.wrapper).find('.' + filter.attribute + 'Filter').append(html);
       });
     }
+    if (dynatable) {
+      dateFormat = dynatable.settings.dataset.dateFormat;
+    }
+    return $(e.target).closest('.dynaWrapper').find('.dyna-date-picker').pickadate({
+      'container': $(e.target).closest('.dynaWrapper'),
+      'selectYears': true,
+      'selectMonths': true,
+      'format': dateFormat
+    });
   });
   return $(document).on("dynatable:afterUpdate", function(e, rows) {
     var colspan;
     colspan = $(e.target).find('thead tr:first-child th').length;
     if (!rows) {
-      $(e.target).find('tbody').append("<tr><td colspan=" + colspan + ">No Records Found</td></tr>");
+      return $(e.target).find('tbody').append("<tr><td colspan=" + colspan + ">No Records Found</td></tr>");
     }
-    return $(e.target).closest('.dynaWrapper').find('.dyna-date-picker').pickadate({
-      'container': $(e.target).closest('.dynaWrapper'),
-      'selectYears': true,
-      'selectMonths': true
-    });
   });
 });

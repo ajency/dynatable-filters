@@ -124,7 +124,8 @@ jQuery(document).ready(function($) {
         idAttr: '_id',
         defaultSort: {
           'name': -1
-        }
+        },
+        dateFormat: 'dddd, dd mmm, yyyy'
       });
     };
 

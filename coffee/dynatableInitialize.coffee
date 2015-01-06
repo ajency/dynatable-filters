@@ -24,6 +24,7 @@ jQuery(document).ready ($)->
 			search 				: true
 			perPageSelect 		: true
 			defaultSort 		: []
+			dateFormat 			: "dd/mm/yy"
 
 		_.defaults opts, defaults
 		
@@ -61,6 +62,8 @@ jQuery(document).ready ($)->
 					totalRecordCount 	: opts.totalRecordCount	
 					perPageOptions 		: opts.perPageOptions
 					sorts 				: opts.defaultSort
+					dateFormat 			: opts.dateFormat
+
 					sortTypes 			:-> 
 						sorts = []
 						headers= $(opts.element).find 'table thead tr:first-child th'
@@ -126,7 +129,7 @@ jQuery(document).ready ($)->
 				when 'select'
 					html +="<div><label>#{filter.label}: </label>" if filter.label
 					html +="<select class='#{filter.attribute}Filter filters #{filter.className}' data-dynatable-query='#{filter.attribute}'>
-								<option value='' selected>--</option>
+								<option value='' selected>--Select--</option>
 							</select>
 						</div><br>"
 
@@ -210,10 +213,7 @@ jQuery(document).ready ($)->
 				$(dynatable.settings.wrapper).find '.'+filter.attribute+'Filter'
 				.append html
 
-	$(document).on "dynatable:afterUpdate", (e, rows)->
-		colspan = $(e.target).find('thead tr:first-child th').length
-		if not rows
-			$(e.target).find('tbody').append "<tr><td colspan=#{colspan}>No Records Found</td></tr>"
+		dateFormat= dynatable.settings.dataset.dateFormat if dynatable
 
 		$(e.target).closest '.dynaWrapper'
 		.find '.dyna-date-picker'
@@ -221,3 +221,11 @@ jQuery(document).ready ($)->
 			'container'		: $(e.target).closest '.dynaWrapper'
 			'selectYears'	: true
 			'selectMonths'	: true
+			'format' 		: dateFormat
+
+	$(document).on "dynatable:afterUpdate", (e, rows)->
+
+		colspan = $(e.target).find('thead tr:first-child th').length
+		if not rows
+			$(e.target).find('tbody').append "<tr><td colspan=#{colspan}>No Records Found</td></tr>"
+

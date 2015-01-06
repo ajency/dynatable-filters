@@ -125,6 +125,7 @@ jQuery(document).ready ($)->
 				customFilters	: customFilters
 				idAttr 			: '_id'
 				defaultSort 	: 'name' : -1
+				dateFormat 		: 'dddd, dd mmm, yyyy' #Thursday, 22 Jan, 2015
 				
 
 	################## End of Client Side Pagination & Sorting ##################
