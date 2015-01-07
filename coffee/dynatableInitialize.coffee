@@ -140,7 +140,7 @@ jQuery(document).ready ($)->
 					</div><br>"
 
 				when 'date'
-					html +="<input class='srch-filters dyna-date-picker #{filter.className}' size=5 data-dynatable-type='date' data-search-query='#{filter.attribute}' data-dynatable-query='#{filter.attribute}' type = 'text' style='color:#000'>"
+					html +="<div class='dateFilter'><input class='srch-filters dyna-date-picker #{filter.className}' size=5 data-dynatable-type='date' data-search-query='#{filter.attribute}' data-dynatable-query='#{filter.attribute}' type = 'text' style='color:#000'></div>"
 					
 			wrapperElement.append html
 
@@ -151,6 +151,7 @@ jQuery(document).ready ($)->
 		searchType= $(e.target).attr 'data-dynatable-type'
 		value  = $(e.target).val()
 		if searchType is 'date'
+			value = $(e.target).closest('.dateFilter').find('input[name="_submit"]').val()
 			functions[attrName] = (record,queryValue)->
 				attrValue 	= moment(new Date(record[attrName])).format 'YYYY-MM-DD'
 				queryValue 	= moment(new Date(queryValue)).format 'YYYY-MM-DD'
@@ -186,26 +187,27 @@ jQuery(document).ready ($)->
 				switch filter.elementType
 					when 'select'
 						if filter.values
-							html += "<option value=#{item}>#{item}</option>" for item in filter.values
+							html += "<option value='#{item}'>#{item}</option>" for item in filter.values
 
 						else if filter.range
 							maxRec = parseInt _.max uniqRecs
 							minimum = if filter.minimum then filter.minimum else 0
 							range = _.range minimum, maxRec, filter.range
-							html += "<option value=#{num}-#{num+filter.range}>#{num} to #{num+filter.range}</option>" for num in range
+							console.log range
+							html += "<option value='#{num}-#{num+filter.range-1}'>#{num} to #{num+filter.range-1}</option>" for num in range
 
 							dynatable.queries.functions[filter.attribute] = (record,queryValue)->
 								values 	= queryValue.split '-'
-								parseInt(record[filter.attribute]) >= parseInt(values[0]) and  parseInt(record[filter.attribute]) < parseInt(values[1])
+								parseInt(record[filter.attribute]) >= parseInt(values[0]) and  parseInt(record[filter.attribute]) <= parseInt(values[1])
 
 						else
-							html += "<option value=#{item}>#{item}</option>" for item in uniqRecs
+							html += "<option value='#{item}'>#{item}</option>" for item in uniqRecs
 
 					when 'radio','checkbox'
 						if filter.values
-							html += " <input class='#{filter.className}' type='#{filter.elementType}' value=#{item} name=#{filter.attribute}> <span class='capital'>#{item}</span>" for item in filter.values
+							html += " <input class='#{filter.className}' type='#{filter.elementType}' value='#{item}' name=#{filter.attribute}> <span class='capital'>#{item}</span>" for item in filter.values
 						else
-							html += " <input class='#{filter.className}' type='#{filter.elementType}' value=#{item} name=#{filter.attribute}> <span class='capital'>#{item}</span>" for item in uniqRecs
+							html += " <input class='#{filter.className}' type='#{filter.elementType}' value='#{item}' name=#{filter.attribute}> <span class='capital'>#{item}</span>" for item in uniqRecs
 
 						if filter.elementType is 'checkbox'
 							dynatable.queries.functions[filter.attribute] = (record,queryValue)->
@@ -219,10 +221,11 @@ jQuery(document).ready ($)->
 		$(e.target).closest '.dynaWrapper'
 		.find '.dyna-date-picker'
 		.pickadate 
-			'container'		: $(e.target).closest '.dynaWrapper'
+			'container'		: 'body'
 			'selectYears'	: true
 			'selectMonths'	: true
 			'format' 		: dateFilterFormat
+			'formatSubmit' 	: 'yyyy-mm-dd'
 
 	$(document).on "dynatable:afterUpdate", (e, rows)->
 

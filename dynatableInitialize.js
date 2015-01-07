@@ -143,7 +143,7 @@ jQuery(document).ready(function($) {
           html += "<div class='" + filter.attribute + "Filter'> <label>" + filter.label + ": </label> </div><br>";
           break;
         case 'date':
-          html += "<input class='srch-filters dyna-date-picker " + filter.className + "' size=5 data-dynatable-type='date' data-search-query='" + filter.attribute + "' data-dynatable-query='" + filter.attribute + "' type = 'text' style='color:#000'>";
+          html += "<div class='dateFilter'><input class='srch-filters dyna-date-picker " + filter.className + "' size=5 data-dynatable-type='date' data-search-query='" + filter.attribute + "' data-dynatable-query='" + filter.attribute + "' type = 'text' style='color:#000'></div>";
       }
       return wrapperElement.append(html);
     });
@@ -156,6 +156,7 @@ jQuery(document).ready(function($) {
     searchType = $(e.target).attr('data-dynatable-type');
     value = $(e.target).val();
     if (searchType === 'date') {
+      value = $(e.target).closest('.dateFilter').find('input[name="_submit"]').val();
       functions[attrName] = function(record, queryValue) {
         var attrValue, contains;
         attrValue = moment(new Date(record[attrName])).format('YYYY-MM-DD');
@@ -199,25 +200,26 @@ jQuery(document).ready(function($) {
               _ref = filter.values;
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 item = _ref[_i];
-                html += "<option value=" + item + ">" + item + "</option>";
+                html += "<option value='" + item + "'>" + item + "</option>";
               }
             } else if (filter.range) {
               maxRec = parseInt(_.max(uniqRecs));
               minimum = filter.minimum ? filter.minimum : 0;
               range = _.range(minimum, maxRec, filter.range);
+              console.log(range);
               for (_j = 0, _len1 = range.length; _j < _len1; _j++) {
                 num = range[_j];
-                html += "<option value=" + num + "-" + (num + filter.range) + ">" + num + " to " + (num + filter.range) + "</option>";
+                html += "<option value='" + num + "-" + (num + filter.range - 1) + "'>" + num + " to " + (num + filter.range - 1) + "</option>";
               }
               dynatable.queries.functions[filter.attribute] = function(record, queryValue) {
                 var values;
                 values = queryValue.split('-');
-                return parseInt(record[filter.attribute]) >= parseInt(values[0]) && parseInt(record[filter.attribute]) < parseInt(values[1]);
+                return parseInt(record[filter.attribute]) >= parseInt(values[0]) && parseInt(record[filter.attribute]) <= parseInt(values[1]);
               };
             } else {
               for (_k = 0, _len2 = uniqRecs.length; _k < _len2; _k++) {
                 item = uniqRecs[_k];
-                html += "<option value=" + item + ">" + item + "</option>";
+                html += "<option value='" + item + "'>" + item + "</option>";
               }
             }
             break;
@@ -227,12 +229,12 @@ jQuery(document).ready(function($) {
               _ref1 = filter.values;
               for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
                 item = _ref1[_l];
-                html += " <input class='" + filter.className + "' type='" + filter.elementType + "' value=" + item + " name=" + filter.attribute + "> <span class='capital'>" + item + "</span>";
+                html += " <input class='" + filter.className + "' type='" + filter.elementType + "' value='" + item + "' name=" + filter.attribute + "> <span class='capital'>" + item + "</span>";
               }
             } else {
               for (_m = 0, _len4 = uniqRecs.length; _m < _len4; _m++) {
                 item = uniqRecs[_m];
-                html += " <input class='" + filter.className + "' type='" + filter.elementType + "' value=" + item + " name=" + filter.attribute + "> <span class='capital'>" + item + "</span>";
+                html += " <input class='" + filter.className + "' type='" + filter.elementType + "' value='" + item + "' name=" + filter.attribute + "> <span class='capital'>" + item + "</span>";
               }
             }
             if (filter.elementType === 'checkbox') {
@@ -248,10 +250,11 @@ jQuery(document).ready(function($) {
       dateFilterFormat = dynatable.settings.dataset.dateFilterFormat;
     }
     return $(e.target).closest('.dynaWrapper').find('.dyna-date-picker').pickadate({
-      'container': $(e.target).closest('.dynaWrapper'),
+      'container': 'body',
       'selectYears': true,
       'selectMonths': true,
-      'format': dateFilterFormat
+      'format': dateFilterFormat,
+      'formatSubmit': 'yyyy-mm-dd'
     });
   });
   return $(document).on("dynatable:afterUpdate", function(e, rows) {
